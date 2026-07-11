@@ -30,12 +30,23 @@
       packages.default = naerskLib.buildPackage {
         src = self;
 
-        buildInputs = with pkgs; [glib];
+        buildInputs = with pkgs; [
+          glib
+          libxcb
+          libxkbcommon
+          fontconfig
+          vulkan-loader
+          pango
+          atk
+          gtk3
+          openssl
+        ];
         nativeBuildInputs = with pkgs; [pkg-config makeWrapper];
 
         postInstall = ''
           wrapProgram $out/bin/projman \
             --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath (with pkgs; [
+            libxcb
             wayland
             libxkbcommon
             libGL
@@ -52,15 +63,25 @@
           })
           glib
           just
+
+          libxcb
+          libxkbcommon
+          fontconfig
+          pango
+          atk
+          gtk3
+          openssl
         ];
 
-        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
-          pkgs.wayland
-          pkgs.libxkbcommon
-          pkgs.libGL
-          pkgs.mesa
-          pkgs.vulkan-loader
-        ];
+        LD_LIBRARY_PATH = with pkgs;
+          pkgs.lib.makeLibraryPath [
+            libxcb
+            wayland
+            libxkbcommon
+            libGL
+            mesa
+            vulkan-loader
+          ];
 
         nativeBuildInputs = [pkgs.pkg-config];
       };

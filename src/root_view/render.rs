@@ -1,0 +1,104 @@
+use crate::app_state::GlobalAppState;
+use crate::config::Config;
+use crate::{root_view::RootView, theme::Theme, utils::steal_focus};
+use gpui::prelude::FluentBuilder;
+use gpui::*;
+
+mod project_list;
+mod sidebar;
+mod top_bar;
+
+impl Render for RootView {
+    fn render(
+        &mut self,
+        _window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let theme = cx.global::<Config>().theme.theme.get_theme();
+        let app_state = cx.global::<GlobalAppState>().0.clone();
+
+        let top_bar = top_bar::render(
+            cx,
+            self.sidebar_open,
+            cx.listener(Self::toggle_sidebar),
+            &self.search_bar_state,
+        );
+
+        let project_list = project_list::render(cx, self.selected_project_index);
+
+        let sidebar = sidebar::render(cx, self.selected_project_index);
+
+        let modal_overlay = div()
+            .id("modal_overlay")
+            .absolute()
+            .size_full()
+            .bg(rgba(0x00_00_00_50))
+            .occlude()
+            .on_click(|_, _, cx: &mut App| {
+                cx.stop_propagation();
+            });
+
+        steal_focus! {
+            cx,
+            div()
+                .size_full()
+                .bg(theme.background_weak)
+                .flex()
+                .flex_col()
+                .child(top_bar)
+                .child(
+                    div()
+                        .size_full()
+                        .flex()
+                        .flex_row()
+                        .child(project_list)
+                        .when(self.sidebar_open, |this: Div| this.child(sidebar)),
+                )
+                .when(app_state.modal_active, |this: Div| {
+                    this.child(modal_overlay)
+                })
+        }
+    }
+}
+
+pub fn text_button(
+    id: impl Into<ElementId>,
+    label: &'static str,
+    icon: Option<&'static str>,
+    theme: &Theme,
+    disabled_if: Option<bool>,
+) -> Stateful<Div> {
+    let disabled = disabled_if.unwrap_or(false);
+
+    let mut button = div()
+        .id(id)
+        .h(px(32.0))
+        .bg(theme.surface)
+        .text_color(theme.text)
+        .flex()
+        .items_center()
+        .px_3()
+        .rounded_md()
+        .border_1()
+        .border_color(theme.border)
+        .when(!disabled, |this: Stateful<Div>| {
+            this.cursor_pointer()
+                .hover(|style| style.bg(theme.surface_strong))
+                .active(|style| style.bg(theme.background_weak))
+        });
+
+    match icon {
+        Some(icon_str) => {
+            button = button
+                .w_full()
+                .child(div().w(px(24.0)).flex_none().child(icon_str))
+                .child(div().flex_1().flex().justify_center().child(label))
+                .child(div().w(px(24.0)).flex_none());
+        }
+        None => {
+            button = button.justify_center().child(label);
+        }
+    }
+
+    button
+}
