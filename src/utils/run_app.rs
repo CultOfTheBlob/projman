@@ -1,11 +1,11 @@
+use crate::{
+    app_state::{AppState, GlobalAppState},
+    config::Config,
+    root_view::RootView,
+};
 use gpui::*;
 use gpui_component::{Root, Theme as ComponentTheme, ThemeConfig};
-use std::rc::Rc;
-use std::sync::Arc;
-
-use crate::app_state::{AppState, GlobalAppState};
-use crate::config::Config;
-use crate::root_view::RootView;
+use std::{rc::Rc, sync::Arc};
 
 /**
 # Panics

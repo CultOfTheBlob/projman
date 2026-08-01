@@ -1,5 +1,10 @@
-use crate::{app_state::GlobalAppState, config::Config, root_view::RootView};
+use crate::{
+    app_state::GlobalAppState, config::Config, project::valid_project::ValidProject,
+    root_view::RootView,
+};
 use gpui::*;
+use gpui_animation::{animation::TransitionExt as _, transition::general::EaseInOutQuad};
+use std::time::Duration;
 
 mod edit_project_button;
 mod edit_project_popup;
@@ -10,7 +15,13 @@ mod remove_project_popup;
 mod update_project_button;
 mod update_project_popup;
 
-pub fn render(cx: &Context<RootView>, selected_project_index: Option<usize>) -> Div {
+const SIDEBAR_WITDH: f32 = 640.0;
+
+pub fn render(
+    cx: &Context<RootView>,
+    sidebar_open: bool,
+    selected_project_index: Option<usize>,
+) -> impl IntoElement {
     let app_state = cx.global::<GlobalAppState>().0.clone();
     let theme = cx.global::<Config>().theme.theme.get_theme();
 
@@ -30,29 +41,53 @@ pub fn render(cx: &Context<RootView>, selected_project_index: Option<usize>) -> 
     let remove_project_button = remove_project_button::render(cx);
 
     let project = selected_project_index.map(|index| &app_state.projects[index]);
-    let project_info = project_info::render(cx, project);
+
+    let project_info = project.map_or_else(div, |project| match project {
+        ValidProject::Existant(project) => project_info::render(cx, project),
+        ValidProject::Nonexistant(_) => div(),
+    });
 
     div()
-        .w(px(640.0))
+        .id("sidebar")
+        .w(px(if sidebar_open { SIDEBAR_WITDH } else { 0.0 }))
         .h_full()
-        .bg(theme.background_weak)
-        .border_color(theme.border)
-        .flex()
-        .flex_col()
-        .p_4()
-        .text_color(theme.text_muted)
-        .child(divider_line)
+        .overflow_hidden()
+        .with_transition("sidebar")
+        .transition_when(
+            !sidebar_open,
+            Duration::from_millis(500),
+            EaseInOutQuad,
+            |style| style.w(px(0.0)),
+        )
+        .transition_when(
+            sidebar_open,
+            Duration::from_millis(500),
+            EaseInOutQuad,
+            |style| style.w(px(SIDEBAR_WITDH)),
+        )
         .child(
             div()
+                .w(px(SIDEBAR_WITDH))
+                .h_full()
+                .bg(theme.background_weak)
+                .border_color(theme.border)
                 .flex()
                 .flex_col()
-                .gap_4()
-                .w_full()
-                .child(open_project_button)
-                .child(edit_project_button)
-                .child(update_project_button)
-                .child(remove_project_button),
+                .p_4()
+                .text_color(theme.text_muted)
+                .child(divider_line)
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap_4()
+                        .w_full()
+                        .child(open_project_button)
+                        .child(edit_project_button)
+                        .child(update_project_button)
+                        .child(remove_project_button),
+                )
+                .child(div().h(px(40.0)))
+                .child(project_info),
         )
-        .child(div().h(px(40.0)))
-        .child(project_info)
 }

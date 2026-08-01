@@ -28,4 +28,6 @@ pub enum Error {
     ReadProjectList(String),
     #[error("Failed to get project information: {0}")]
     GetProjectInfo(String),
+    #[error("Failed to add project to projects: {0}")]
+    AddProjectToProjects(String),
 }

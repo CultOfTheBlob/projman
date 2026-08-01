@@ -1,11 +1,7 @@
 use crate::{config::Config, root_view::RootView};
 use gpui::*;
 
-pub fn render(
-    cx: &Context<RootView>,
-    sidebar_open: bool,
-    listener: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static,
-) -> Stateful<Div> {
+pub fn render(cx: &Context<RootView>, sidebar_open: bool) -> Stateful<Div> {
     let theme = cx.global::<Config>().theme.theme.get_theme();
 
     let bg_color = if sidebar_open {
@@ -18,6 +14,13 @@ pub fn render(
     } else {
         theme.background_weak
     };
+
+    let listener =
+        cx.listener(|view: &mut RootView, _, _, cx: &mut Context<RootView>| {
+            view.sidebar_open = !view.sidebar_open;
+
+            cx.notify();
+        });
 
     div()
         .id("top_bar_toggle_sidebar_button")

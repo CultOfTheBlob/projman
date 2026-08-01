@@ -1,8 +1,13 @@
-use crate::app_state::GlobalAppState;
-use crate::config::Config;
-use crate::{root_view::RootView, theme::Theme, utils::steal_focus};
+use crate::{
+    app_state::GlobalAppState, config::Config, root_view::RootView, theme::Theme,
+    utils::steal_focus,
+};
 use gpui::prelude::FluentBuilder;
 use gpui::*;
+use gpui_animation::{
+    animation::TransitionExt as _, transition::general::EaseInOutCubic,
+};
+use std::time::Duration;
 
 mod project_list;
 mod sidebar;
@@ -17,19 +22,45 @@ impl Render for RootView {
         let theme = cx.global::<Config>().theme.theme.get_theme();
         let app_state = cx.global::<GlobalAppState>().0.clone();
 
-        let top_bar = top_bar::render(
+        let top_bar = top_bar::render(cx, self.sidebar_open, &self.search_bar_state);
+
+        let project_list = project_list::render(
             cx,
-            self.sidebar_open,
-            cx.listener(Self::toggle_sidebar),
-            &self.search_bar_state,
+            self.selected_project_index,
+            self.search_bar_state.read(cx),
         );
 
-        let project_list = project_list::render(cx, self.selected_project_index);
-
-        let sidebar = sidebar::render(cx, self.selected_project_index);
+        let sidebar = sidebar::render(cx, self.sidebar_open, self.selected_project_index);
 
         let modal_overlay = div()
             .id("modal_overlay")
+            .absolute()
+            .size_full()
+            .bg(rgba(0x00_00_00_50))
+            .opacity(0.0)
+            .with_transition("modal_overlay")
+            .transition_when(
+                !app_state.modal_active,
+                Duration::from_millis(10),
+                EaseInOutCubic,
+                |style| style.opacity(0.0),
+            )
+            .transition_when(
+                app_state.modal_active,
+                Duration::from_millis(10),
+                EaseInOutCubic,
+                |style| style.opacity(1.0),
+            )
+            .on_click(|_, _, cx: &mut App| {
+                let app_state = cx.global::<GlobalAppState>().0.clone();
+
+                if app_state.modal_active {
+                    cx.stop_propagation();
+                }
+            });
+
+        let modal_blocker = div()
+            .id("modal_blocker")
             .absolute()
             .size_full()
             .bg(rgba(0x00_00_00_50))
@@ -52,10 +83,11 @@ impl Render for RootView {
                         .flex()
                         .flex_row()
                         .child(project_list)
-                        .when(self.sidebar_open, |this: Div| this.child(sidebar)),
+                        .child(sidebar),
                 )
+                .child(modal_overlay)
                 .when(app_state.modal_active, |this: Div| {
-                    this.child(modal_overlay)
+                    this.child(modal_blocker)
                 })
         }
     }

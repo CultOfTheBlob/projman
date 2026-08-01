@@ -1,17 +1,16 @@
 use crate::{
     app_state::GlobalAppState,
     config::Config,
-    project::Project,
+    project::{Existant, Project},
     root_view::RootView,
     utils::{self, LogType},
 };
 use gpui::*;
-use std::path::Path;
-use std::sync::Arc;
+use std::{path::Path, sync::Arc};
 
 pub fn render(
     cx: &Context<RootView>,
-    project: &Arc<Project>,
+    project: &Arc<Project<Existant>>,
     icon: &Path,
     is_selected: bool,
     index: usize,
@@ -32,16 +31,16 @@ pub fn render(
         theme.background_weak
     };
 
+    let set_selected_project_index = |index: Option<usize>| {
+        move |view: &mut RootView, cx: &mut Context<RootView>| {
+            view.selected_project_index = index;
+
+            cx.notify();
+        }
+    };
+
     let listener = {
         let project = project.clone();
-
-        let set_selected_project_index = |index: Option<usize>| {
-            move |view: &mut RootView, cx: &mut Context<RootView>| {
-                view.selected_project_index = index;
-
-                cx.notify();
-            }
-        };
 
         move |event: &ClickEvent, _: &mut Window, cx: &mut App| {
             if event.click_count() == 2 {
@@ -59,7 +58,10 @@ pub fn render(
         }
     };
 
-    let icon = img(icon).w_16().h_16();
+    let icon = utils::load_svg(icon, 128).map_or_else(
+        || div().size_16().into_any_element(),
+        |render_img| img(render_img).size_16().flex_shrink_0().into_any_element(),
+    );
 
     let project_name = div().text_color(theme.accent).child(project.name.clone());
 

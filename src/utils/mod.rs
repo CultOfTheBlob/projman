@@ -1,6 +1,7 @@
 mod create_popup;
 mod get_config_path;
 mod input;
+mod load_svg;
 mod log;
 mod run_app;
 mod steal_focus;
@@ -16,3 +17,5 @@ pub use get_config_path::get_config_path;
 
 pub(crate) use input::input;
 pub(crate) use steal_focus::steal_focus;
+
+pub use load_svg::load_svg;

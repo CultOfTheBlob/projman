@@ -3,10 +3,9 @@ use std::sync::Arc;
 use crate::{
     app_state::GlobalAppState,
     config::Config,
-    project::Project,
+    project::{Existant, Project},
     root_view::RootView,
     theme::Theme,
-    utils::{self, LogType},
 };
 use gpui::*;
 
@@ -67,48 +66,42 @@ fn section_box(title: &'static str, content: Div, theme: &Theme) -> Div {
         .child(div().pt_4().child(content))
 }
 
-pub fn render(cx: &Context<RootView>, project: Option<&Arc<Project>>) -> Div {
+pub fn render(cx: &Context<RootView>, project: &Arc<Project<Existant>>) -> Div {
     let app_state = cx.global::<GlobalAppState>().0.clone();
     let theme = cx.global::<Config>().theme.theme.get_theme();
 
-    let project_info = project
-        .and_then(|project| {
-            let info = project
-                .info(&app_state)
-                .map_err(|err| {
-                    utils::log(&err.to_string(), LogType::Error);
-                })
-                .ok()?;
+    let project_info = if let Ok(info) = project.info(&app_state) {
+        let repo = repo::render(project.repo.clone(), &theme);
 
-            let repo = repo::render(project.repo.clone(), &theme);
+        let branches = branches::render(&info.branches, info.current_branch, &theme);
 
-            let branches = branches::render(&info.branches, info.current_branch, &theme);
+        let languages = languages::render(&info.language_percentage, &theme);
 
-            let languages = languages::render(&info.language_percentage, &theme);
+        let authors = authors::render(&info.authors, &theme);
 
-            let authors = authors::render(&info.authors, &theme);
+        let commits = commits::render(&info.last_commit, info.commit_count, &theme);
 
-            let commits = commits::render(&info.last_commit, info.commit_count, &theme);
+        let metadata = metadata::render(&info, &project.license, &theme);
 
-            let metadata = metadata::render(&info, &project.license, &theme);
+        let div = div()
+            .flex()
+            .flex_col()
+            .w_full()
+            .gap_2()
+            .text_sm()
+            .text_color(theme.text)
+            .child(repo)
+            .child(branches)
+            .child(languages)
+            .child(authors)
+            .child(commits)
+            .child(metadata);
 
-            let div = div()
-                .flex()
-                .flex_col()
-                .w_full()
-                .gap_2()
-                .text_sm()
-                .text_color(theme.text)
-                .child(repo)
-                .child(branches)
-                .child(languages)
-                .child(authors)
-                .child(commits)
-                .child(metadata);
-
-            Some(div)
-        })
-        .unwrap_or_else(|| div());
+        Some(div)
+    } else {
+        None
+    }
+    .unwrap_or_else(|| div());
 
     div()
         .flex()

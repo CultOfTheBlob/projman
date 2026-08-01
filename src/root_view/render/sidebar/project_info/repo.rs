@@ -1,7 +1,28 @@
-use crate::theme::Theme;
+use crate::{
+    theme::Theme,
+    utils::{self, LogType},
+};
 use gpui::*;
 
-pub fn render(repo_name: String, theme: &Theme) -> Div {
+pub fn render(repo: String, theme: &Theme) -> Div {
+    let repo_name = repo.clone();
+
+    let listener = move |_event: &ClickEvent, _window: &mut Window, _cx: &mut App| {
+        let repo = if repo.starts_with("git@") {
+            let repo = &repo.strip_prefix("git@").unwrap_or(&repo);
+            let (host, path) = repo.split_once(':').unwrap_or_default();
+            let path = path.trim_end_matches(".git");
+
+            &format!("https://{host}/{path}")
+        } else {
+            &repo
+        };
+
+        if let Err(err) = open::that(repo) {
+            utils::log(&err.to_string(), LogType::Error);
+        }
+    };
+
     div()
         .flex()
         .items_center()
@@ -15,8 +36,11 @@ pub fn render(repo_name: String, theme: &Theme) -> Div {
         )
         .child(
             div()
-                .cursor_pointer()
+                .id("sidebar_project_info_project_repo_url")
                 .text_color(theme.text)
+                .cursor_pointer()
+                .active(|style: StyleRefinement| style.text_color(theme.accent_alt))
+                .on_click(listener)
                 .child(repo_name),
         )
 }

@@ -12,7 +12,6 @@ mod search_bar;
 pub fn render(
     cx: &Context<RootView>,
     sidebar_open: bool,
-    collapse_sidebar_on_click_listener: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static,
     search_bar_state: &Entity<InputState>,
 ) -> Div {
     let theme = cx.global::<Config>().theme.theme.get_theme();
@@ -25,11 +24,7 @@ pub fn render(
 
     let seperator = div().flex_1();
 
-    let collapse_sidebar_button = collapse_sidebar_button::render(
-        cx,
-        sidebar_open,
-        collapse_sidebar_on_click_listener,
-    );
+    let collapse_sidebar_button = collapse_sidebar_button::render(cx, sidebar_open);
 
     div()
         .w_full()

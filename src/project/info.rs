@@ -1,4 +1,9 @@
-use crate::{app_state::AppState, prelude::*, project::Project, template::Template};
+use crate::{
+    app_state::AppState,
+    prelude::*,
+    project::{Existant, Project},
+    template::Template,
+};
 use bytesize::ByteSize;
 use git2::{BranchType, Index, Reference, Repository};
 use serde::{Deserialize, Serialize};
@@ -18,7 +23,7 @@ pub struct ProjectInfo {
     pub authors: Vec<(String, f32)>,
 }
 
-impl Project {
+impl Project<Existant> {
     pub fn info(&self, app_state: &Arc<AppState>) -> Result<ProjectInfo> {
         let repo = Repository::open(&self.path)
             .map_err(|err| Error::GetProjectInfo(err.to_string()))?;
@@ -55,7 +60,7 @@ impl Project {
 }
 
 fn get_language_stats(
-    project: &Project,
+    project: &Project<Existant>,
     template: &Template,
 ) -> (usize, Vec<(LanguageType, f32)>) {
     let mut languages = Languages::new();

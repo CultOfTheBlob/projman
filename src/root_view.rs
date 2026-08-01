@@ -30,14 +30,4 @@ impl RootView {
             selected_project_index: None,
         }
     }
-
-    fn toggle_sidebar(
-        &mut self,
-        _click_event: &ClickEvent,
-        _window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        self.sidebar_open = !self.sidebar_open;
-        cx.notify();
-    }
 }

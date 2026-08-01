@@ -1,29 +1,38 @@
-use crate::{app_state::AppState, config::Config, prelude::*, template::Template};
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
-use std::{fs, path::PathBuf, sync::Arc};
+use std::{marker::PhantomData, path::PathBuf};
+
+mod existant;
+pub mod info;
+mod load_projects;
+mod unvalidated;
+pub mod valid_project;
+
+pub use load_projects::load_projects;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Project {
+pub struct Project<State = Unvalidated> {
     pub name: String,
     pub path: PathBuf,
     pub repo: String,
     pub license: String,
     pub template_name: String,
+
+    #[serde(skip)]
+    pub state: PhantomData<State>,
 }
 
-pub mod info;
-mod load_projects;
+#[derive(Debug, Clone)]
+pub struct Existant;
 
-pub use load_projects::load_projects;
+#[derive(Debug, Clone)]
+pub struct Nonexistant;
 
-impl Project {
-    const PROJMAN_FILE_NAME: &str = ".projman.toml";
+#[derive(Debug, Clone)]
+pub struct Unvalidated;
 
-    pub fn run(project: &Arc<Self>, app_state: &Arc<AppState>) -> Result<()> {
-        app_state
-            .get_template(&project.template_name)?
-            .run(&project.path)
-    }
+impl<State> Project<State> {
+    const PROJECT_FILE_NAME: &str = ".projman.toml";
 
     pub fn new(config: &Config) -> Self {
         let projects_dir = &config.general.projects_dir;
@@ -36,48 +45,8 @@ impl Project {
             repo: String::new(),
             license: String::new(),
             template_name: String::new(),
+
+            state: PhantomData,
         }
-    }
-
-    pub fn template<'a>(&self, app_state: &'a AppState) -> Result<&'a Template> {
-        app_state.get_template(&self.template_name)
-    }
-
-    pub fn exists(&self) -> Result<bool> {
-        let path = &self.path;
-
-        if !path.is_dir() {
-            return Ok(false);
-        }
-
-        let project_file_path = path.join(Self::PROJMAN_FILE_NAME);
-
-        if !project_file_path.is_file() {
-            return Ok(false);
-        }
-
-        let project_file_toml = toml::from_str::<Self>(
-            &fs::read_to_string(project_file_path)
-                .map_err(|err| Error::ReadProjectFile(err.to_string()))?,
-        )
-        .map_err(|err| Error::ReadProjectFile(err.to_string()))?;
-
-        if project_file_toml.name != self.name {
-            return Ok(false);
-        }
-
-        if project_file_toml.template_name != self.template_name {
-            return Ok(false);
-        }
-
-        if project_file_toml.repo != self.repo {
-            return Ok(false);
-        }
-
-        if project_file_toml.license != self.license {
-            return Ok(false);
-        }
-
-        Ok(true)
     }
 }
