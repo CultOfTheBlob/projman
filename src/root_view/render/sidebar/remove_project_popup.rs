@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
-use crate::app_state::{AppState, GlobalAppState};
+use crate::{
+    app_state::{AppState, GlobalAppState},
+    utils::{self, LogType},
+};
 use gpui::*;
 
 pub struct RemoveProjectPopup {
-    selected_project_index: usize,
-
     remove_folder_checked: bool,
 }
 
@@ -30,7 +31,16 @@ impl RemoveProjectPopup {
     ) {
         cx.update_global::<GlobalAppState, ()>(|app_state: &mut GlobalAppState, _| {
             let app_state = Arc::make_mut(&mut app_state.0);
-            app_state.remove_project(view.selected_project_index);
+
+            let Some(project_index) = app_state.selected_project_index else {
+                unreachable!()
+            };
+
+            if let Err(err) =
+                app_state.remove_project(project_index, view.remove_folder_checked)
+            {
+                utils::log(&err.to_string(), LogType::Error);
+            }
         });
 
         AppState::set_modal_active(cx, false);

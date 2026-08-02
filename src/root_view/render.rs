@@ -24,13 +24,9 @@ impl Render for RootView {
 
         let top_bar = top_bar::render(cx, self.sidebar_open, &self.search_bar_state);
 
-        let project_list = project_list::render(
-            cx,
-            self.selected_project_index,
-            self.search_bar_state.read(cx),
-        );
+        let project_list = project_list::render(cx, self.search_bar_state.read(cx));
 
-        let sidebar = sidebar::render(cx, self.sidebar_open, self.selected_project_index);
+        let sidebar = sidebar::render(cx, self.sidebar_open);
 
         let modal_overlay = div()
             .id("modal_overlay")

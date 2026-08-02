@@ -32,7 +32,7 @@ pub struct Nonexistant;
 pub struct Unvalidated;
 
 impl<State> Project<State> {
-    const PROJECT_FILE_NAME: &str = ".projman.toml";
+    pub const PROJECT_FILE_NAME: &str = ".projman.toml";
 
     pub fn new(config: &Config) -> Self {
         let projects_dir = &config.general.projects_dir;

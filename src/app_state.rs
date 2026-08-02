@@ -1,18 +1,21 @@
 use crate::{
-    config_dir::ConfigDir,
     prelude::*,
-    project::{self, valid_project::ValidProject},
+    project::{self, Project, valid_project::ValidProject},
     template::{self, Template},
     utils::{self, LogType},
 };
 use gpui::{App, BorrowAppContext as _, Global};
-use serde::{Serializer, ser::SerializeSeq};
-use std::{collections::HashMap, fs::File, sync::Arc};
+use std::{collections::HashMap, fs, path::PathBuf, sync::Arc};
+use update_projects_file::update_projects_file;
+
+mod update_projects_file;
 
 #[derive(Debug, Clone)]
 pub struct AppState {
     pub templates: HashMap<String, Template>,
     pub projects: Vec<ValidProject>,
+
+    pub selected_project_index: Option<usize>,
 
     pub modal_active: bool,
 }
@@ -35,6 +38,8 @@ impl AppState {
             templates,
             projects,
 
+            selected_project_index: None,
+
             modal_active: false,
         }
     }
@@ -43,6 +48,16 @@ impl AppState {
         cx.update_global::<GlobalAppState, ()>(|app_state: &mut GlobalAppState, _| {
             let app_state = Arc::make_mut(&mut app_state.0);
             app_state.modal_active = modal_active;
+        });
+    }
+
+    pub fn set_selected_project_index(
+        cx: &mut App,
+        selected_project_index: Option<usize>,
+    ) {
+        cx.update_global::<GlobalAppState, ()>(|app_state: &mut GlobalAppState, _| {
+            let app_state = Arc::make_mut(&mut app_state.0);
+            app_state.selected_project_index = selected_project_index;
         });
     }
 
@@ -68,44 +83,47 @@ impl AppState {
             .collect()
     }
 
+    pub fn get_selected_project(&self) -> Option<ValidProject> {
+        self.selected_project_index
+            .map(|index| self.projects[index].clone())
+    }
+
     pub fn add_project(&mut self, project: ValidProject) -> Result<()> {
         self.projects.push(project);
 
-        let projects_path = ConfigDir::Projects.get_file(Some(""))?;
-        let writer = File::create(projects_path)
-            .map_err(|err| Error::AddProjectToProjects(err.to_string()))?;
-
-        let mut serializer = serde_yaml::Serializer::new(writer);
-        let mut seq = serializer
-            .serialize_seq(Some(self.projects.len()))
-            .map_err(|err| Error::AddProjectToProjects(err.to_string()))?;
-
-        for project in &self.projects {
-            match project {
-                ValidProject::Existant(p) => seq
-                    .serialize_element(p.as_ref())
-                    .map_err(|err| Error::AddProjectToProjects(err.to_string()))?,
-                ValidProject::Nonexistant(p) => seq
-                    .serialize_element(p.as_ref())
-                    .map_err(|err| Error::AddProjectToProjects(err.to_string()))?,
-            }
-        }
-
-        seq.end()
-            .map_err(|err| Error::AddProjectToProjects(err.to_string()))?;
+        update_projects_file(&self.projects)?;
 
         Ok(())
     }
 
-    pub fn remove_project(&mut self, project_index: usize) {
+    pub fn remove_project(
+        &mut self,
+        project_index: usize,
+        remove_project_folder: bool,
+    ) -> Result<()> {
         let project = self.projects[project_index].clone();
 
-        match project {
-            ValidProject::Existant(project) => todo!(),
-            ValidProject::Nonexistant(_) => {
-                self.projects.remove(project_index);
+        self.projects.remove(project_index);
+
+        self.selected_project_index = None;
+
+        if let ValidProject::Existant(project) = project {
+            let project_path = PathBuf::from(&project.name);
+
+            let project_file_path = project_path.join(Project::<()>::PROJECT_FILE_NAME);
+
+            fs::remove_file(project_file_path)
+                .map_err(|err| Error::RemoveProject(err.to_string()))?;
+
+            if remove_project_folder {
+                fs::remove_dir_all(project_path)
+                    .map_err(|err| Error::RemoveProject(err.to_string()))?;
             }
         }
+
+        update_projects_file(&self.projects)?;
+
+        Ok(())
     }
 }
 

@@ -11,8 +11,6 @@ pub struct RootView {
     search_bar_state: Entity<InputState>,
 
     sidebar_open: bool,
-
-    selected_project_index: Option<usize>,
 }
 
 impl RootView {
@@ -27,7 +25,6 @@ impl RootView {
             search_bar_state,
 
             sidebar_open: true,
-            selected_project_index: None,
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    app_state::GlobalAppState,
+    app_state::{AppState, GlobalAppState},
     config::Config,
     project::{Existant, Project},
     root_view::RootView,
@@ -32,8 +32,8 @@ pub fn render(
     };
 
     let set_selected_project_index = |index: Option<usize>| {
-        move |view: &mut RootView, cx: &mut Context<RootView>| {
-            view.selected_project_index = index;
+        move |_: &mut RootView, cx: &mut Context<RootView>| {
+            AppState::set_selected_project_index(cx, index);
 
             cx.notify();
         }

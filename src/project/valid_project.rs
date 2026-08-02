@@ -1,9 +1,9 @@
-use std::{marker::PhantomData, sync::Arc};
-
 use crate::{
     project::{Existant, Nonexistant, Project, Unvalidated},
     utils::{self, LogType},
 };
+use serde::ser::{Serialize, Serializer};
+use std::{marker::PhantomData, sync::Arc};
 
 #[derive(Debug, Clone)]
 pub enum ValidProject {
@@ -39,6 +39,15 @@ impl Project<Unvalidated> {
 
                 state: PhantomData,
             }))
+        }
+    }
+}
+
+impl Serialize for ValidProject {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        match self {
+            Self::Existant(p) => p.as_ref().serialize(serializer),
+            Self::Nonexistant(p) => p.as_ref().serialize(serializer),
         }
     }
 }

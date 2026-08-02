@@ -16,7 +16,9 @@ impl Render for RemoveProjectPopup {
         let theme = cx.global::<Config>().theme.theme.get_theme();
         let app_state = cx.global::<GlobalAppState>().0.clone();
 
-        let project = app_state.projects[self.selected_project_index].clone();
+        let Some(project) = app_state.get_selected_project() else {
+            unreachable!()
+        };
 
         let remove_message = "Are you sure you want to remove this project?";
 

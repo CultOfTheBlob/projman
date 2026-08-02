@@ -1,5 +1,5 @@
 use crate::{
-    app_state::GlobalAppState,
+    app_state::{AppState, GlobalAppState},
     config::Config,
     project::valid_project::ValidProject,
     root_view::RootView,
@@ -11,16 +11,14 @@ use gpui_component::input::InputState;
 mod existant_project;
 mod nonexistant_project;
 
-pub fn render(
-    cx: &Context<RootView>,
-    selected_project_index: Option<usize>,
-    search_bar_state: &InputState,
-) -> Div {
+pub fn render(cx: &Context<RootView>, search_bar_state: &InputState) -> Div {
     let root_view = cx.entity();
     let theme = cx.global::<Config>().theme.theme.get_theme();
     let app_state = cx.global::<GlobalAppState>().0.clone();
 
     let projects = &app_state.get_filtered_projects(&search_bar_state.value());
+
+    let selected_project_index = app_state.selected_project_index;
 
     let project_list = div().flex().flex_col().gap_y_2p5().children(
         projects
@@ -55,6 +53,14 @@ pub fn render(
             }),
     );
 
+    let listener = move |_: &ClickEvent, _: &mut Window, cx: &mut App| {
+        root_view.update(cx, |_, cx: &mut Context<RootView>| {
+            AppState::set_selected_project_index(cx, None);
+
+            cx.notify();
+        });
+    };
+
     div().flex_1().h_full().p_2().child(
         div()
             .id("project_list")
@@ -69,15 +75,6 @@ pub fn render(
             .p_4()
             .text_color(theme.text)
             .child(project_list)
-            .on_click(move |_, _, cx: &mut App| {
-                root_view.update(
-                    cx,
-                    |view: &mut RootView, cx: &mut Context<RootView>| {
-                        view.selected_project_index = None;
-
-                        cx.notify();
-                    },
-                );
-            }),
+            .on_click(listener),
     )
 }

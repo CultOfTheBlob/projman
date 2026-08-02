@@ -17,13 +17,11 @@ mod update_project_popup;
 
 const SIDEBAR_WITDH: f32 = 640.0;
 
-pub fn render(
-    cx: &Context<RootView>,
-    sidebar_open: bool,
-    selected_project_index: Option<usize>,
-) -> impl IntoElement {
-    let app_state = cx.global::<GlobalAppState>().0.clone();
+pub fn render(cx: &Context<RootView>, sidebar_open: bool) -> impl IntoElement {
     let theme = cx.global::<Config>().theme.theme.get_theme();
+    let app_state = cx.global::<GlobalAppState>().0.clone();
+
+    let selected_project_index = app_state.selected_project_index;
 
     let divider_line = div()
         .w_full()
