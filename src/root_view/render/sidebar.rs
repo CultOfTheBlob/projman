@@ -38,7 +38,7 @@ pub fn render(
 
     let update_project_button = update_project_button::render(cx);
 
-    let remove_project_button = remove_project_button::render(cx);
+    let remove_project_button = remove_project_button::render(cx, selected_project_index);
 
     let project = selected_project_index.map(|index| &app_state.projects[index]);
 

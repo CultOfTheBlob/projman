@@ -15,6 +15,7 @@ use gpui::*;
 pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
     let theme = cx.global::<Config>().theme.theme.get_theme();
     let config = cx.global::<Config>();
+    let root_view = cx.entity();
 
     let project = ValidProject::Existant(Arc::new(Project::new(config)));
 
@@ -28,7 +29,7 @@ pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
                 },
             );
 
-            utils::create_popup::<CreateProjectPopup>(cx);
+            utils::create_popup::<CreateProjectPopup>(&root_view, cx);
         },
     )
 }

@@ -1,5 +1,7 @@
 use gpui::*;
 
+use crate::root_view::RootView;
+
 pub trait Popup {
     const TITLE: &'static str;
 
@@ -9,5 +11,5 @@ pub trait Popup {
 
     const HEIGHT_FRACTION: f32;
 
-    fn create(window: &mut Window, cx: &mut App) -> Self;
+    fn create(root_view: &Entity<RootView>, window: &mut Window, cx: &mut App) -> Self;
 }

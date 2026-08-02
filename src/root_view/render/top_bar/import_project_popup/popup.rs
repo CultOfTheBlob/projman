@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::{
     config::Config,
     root_view::{
-        popup::Popup, render::top_bar::import_project_popup::ImportProjectPopup,
+        RootView, popup::Popup, render::top_bar::import_project_popup::ImportProjectPopup,
     },
 };
 use gpui::*;
@@ -18,7 +18,7 @@ impl Popup for ImportProjectPopup {
 
     const HEIGHT_FRACTION: f32 = 0.125;
 
-    fn create(window: &mut Window, cx: &mut App) -> Self {
+    fn create(_root_view: &Entity<RootView>, window: &mut Window, cx: &mut App) -> Self {
         let project_path_input_state = cx.new(|cx: &mut Context<InputState>| {
             InputState::new(window, cx).placeholder("...")
         });

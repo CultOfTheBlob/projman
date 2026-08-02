@@ -1,5 +1,5 @@
 use crate::root_view::{
-    popup::Popup, render::sidebar::update_project_popup::UpdateProjectPopup,
+    RootView, popup::Popup, render::sidebar::update_project_popup::UpdateProjectPopup,
 };
 use gpui::*;
 
@@ -12,7 +12,11 @@ impl Popup for UpdateProjectPopup {
 
     const HEIGHT_FRACTION: f32 = 0.10;
 
-    fn create(_window: &mut Window, _cx: &mut App) -> Self {
+    fn create(
+        _root_view: &Entity<RootView>,
+        _window: &mut Window,
+        _cx: &mut App,
+    ) -> Self {
         Self {}
     }
 }

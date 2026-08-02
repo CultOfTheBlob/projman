@@ -40,9 +40,9 @@ impl AppState {
     }
 
     pub fn set_modal_active(cx: &mut App, modal_active: bool) {
-        cx.update_global::<GlobalAppState, ()>(|state: &mut GlobalAppState, _| {
-            let state = Arc::make_mut(&mut state.0);
-            state.modal_active = modal_active;
+        cx.update_global::<GlobalAppState, ()>(|app_state: &mut GlobalAppState, _| {
+            let app_state = Arc::make_mut(&mut app_state.0);
+            app_state.modal_active = modal_active;
         });
     }
 
@@ -95,6 +95,17 @@ impl AppState {
             .map_err(|err| Error::AddProjectToProjects(err.to_string()))?;
 
         Ok(())
+    }
+
+    pub fn remove_project(&mut self, project_index: usize) {
+        let project = self.projects[project_index].clone();
+
+        match project {
+            ValidProject::Existant(project) => todo!(),
+            ValidProject::Nonexistant(_) => {
+                self.projects.remove(project_index);
+            }
+        }
     }
 }
 

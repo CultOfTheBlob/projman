@@ -1,5 +1,5 @@
 use crate::root_view::{
-    popup::Popup, render::sidebar::edit_project_popup::EditProjectPopup,
+    RootView, popup::Popup, render::sidebar::edit_project_popup::EditProjectPopup,
 };
 use gpui::*;
 use gpui_component::input::InputState;
@@ -13,7 +13,7 @@ impl Popup for EditProjectPopup {
 
     const HEIGHT_FRACTION: f32 = 0.20;
 
-    fn create(window: &mut Window, cx: &mut App) -> Self {
+    fn create(_root_view: &Entity<RootView>, window: &mut Window, cx: &mut App) -> Self {
         let project_name_input_state = cx.new(|cx: &mut Context<InputState>| {
             InputState::new(window, cx).placeholder("Name")
         });

@@ -1,8 +1,10 @@
 use crate::{
+    app_state::GlobalAppState,
     config::Config,
+    project::valid_project::ValidProject,
     root_view::render::{self, sidebar::remove_project_popup::RemoveProjectPopup},
 };
-use gpui::*;
+use gpui::{prelude::FluentBuilder, *};
 use gpui_component::checkbox::Checkbox;
 
 impl Render for RemoveProjectPopup {
@@ -12,6 +14,9 @@ impl Render for RemoveProjectPopup {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let theme = cx.global::<Config>().theme.theme.get_theme();
+        let app_state = cx.global::<GlobalAppState>().0.clone();
+
+        let project = app_state.projects[self.selected_project_index].clone();
 
         let remove_message = "Are you sure you want to remove this project?";
 
@@ -23,7 +28,7 @@ impl Render for RemoveProjectPopup {
         let confirm_button =
             render::text_button("confirm_button", "Confirm", None, &theme, None)
                 .bg(theme.error)
-                .on_click(Self::confirm_button_pressed);
+                .on_click(cx.listener(Self::confirm_button_pressed));
 
         let remove_folder_checkbox = {
             let checkbox = Checkbox::new("remove_folder_checkbox_toggle")
@@ -58,7 +63,9 @@ impl Render for RemoveProjectPopup {
             .gap_y_3()
             .text_color(theme.text)
             .child(remove_message)
-            .child(remove_folder_checkbox)
+            .when(matches!(project, ValidProject::Existant(_)), |this: Div| {
+                this.child(remove_folder_checkbox)
+            })
             .child(div().flex_1())
             .child(
                 div()

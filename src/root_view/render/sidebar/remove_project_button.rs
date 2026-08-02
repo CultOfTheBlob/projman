@@ -6,13 +6,36 @@ use crate::{
     },
     utils,
 };
-use gpui::*;
+use gpui::{prelude::FluentBuilder as _, *};
 
-pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
+pub fn render(
+    cx: &Context<RootView>,
+    selected_project_index: Option<usize>,
+) -> Stateful<Div> {
     let theme = cx.global::<Config>().theme.theme.get_theme();
+    let root_view = cx.entity();
 
-    render::text_button("sidebar_remove_button", "Remove", Some("󰆴"), &theme, None)
-        .on_click(|_, _, cx: &mut App| {
-            utils::create_popup::<RemoveProjectPopup>(cx);
-        })
+    let disabled = selected_project_index.is_none();
+
+    let listener = move |_: &ClickEvent, _: &mut Window, cx: &mut App| {
+        if disabled {
+            return;
+        }
+
+        utils::create_popup::<RemoveProjectPopup>(&root_view, cx);
+    };
+
+    render::text_button(
+        "sidebar_remove_button",
+        "Remove",
+        Some("󰆴"),
+        &theme,
+        Some(disabled),
+    )
+    .when(disabled, |this: Stateful<Div>| {
+        this.bg(theme.background)
+            .border_color(theme.background)
+            .text_color(theme.text_disabled)
+    })
+    .on_click(listener)
 }

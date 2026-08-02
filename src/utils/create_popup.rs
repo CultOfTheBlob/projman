@@ -1,13 +1,13 @@
 use crate::{
     app_state::AppState,
     prelude::*,
-    root_view::popup::Popup,
+    root_view::{RootView, popup::Popup},
     utils::{self, LogType},
 };
 use gpui::*;
 use gpui_component::Root;
 
-pub fn create_popup<T: Render + Popup>(cx: &mut App) {
+pub fn create_popup<T: Render + Popup>(root_view: &Entity<RootView>, cx: &mut App) {
     let options = {
         let display_bounds = cx.displays().first().map_or_else(
             || Bounds::new(Point::default(), Size::new(px(1920.0), px(1080.0))),
@@ -45,7 +45,7 @@ pub fn create_popup<T: Render + Popup>(cx: &mut App) {
             true
         });
 
-        let view = cx.new(|cx: &mut Context<T>| T::create(window, cx));
+        let view = cx.new(|cx: &mut Context<T>| T::create(root_view, window, cx));
 
         cx.new(|cx| Root::new(view, window, cx))
     }) {

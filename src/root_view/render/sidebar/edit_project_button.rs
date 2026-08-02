@@ -10,10 +10,11 @@ use gpui::*;
 
 pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
     let theme = cx.global::<Config>().theme.theme.get_theme();
+    let root_view = cx.entity();
 
     render::text_button("sidebar_edit_button", "Edit", Some(""), &theme, None).on_click(
-        |_, _, cx: &mut App| {
-            utils::create_popup::<EditProjectPopup>(cx);
+        move |_, _, cx: &mut App| {
+            utils::create_popup::<EditProjectPopup>(&root_view, cx);
         },
     )
 }
