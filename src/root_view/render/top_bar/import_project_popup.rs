@@ -1,7 +1,11 @@
-use std::{path::PathBuf, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use crate::{
     app_state::{AppState, GlobalAppState},
+    project::Project,
     utils::{self, LogType},
 };
 use gpui::*;
@@ -26,10 +30,15 @@ impl ImportProjectPopup {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        let extension = Path::new(Project::<()>::PROJECT_FILE_NAME)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("");
+
         if let Some(path) = FileDialog::new()
             .set_title("Pick ProjMan File")
             .set_directory(&this.projects_directory)
-            .add_filter("ProjMan", &["toml"])
+            .add_filter("ProjMan", &[extension])
             .pick_file()
         {
             let display_path = path.to_string_lossy().into_owned();

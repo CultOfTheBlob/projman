@@ -191,6 +191,20 @@ impl AppState {
     }
 
     pub fn import_project(&mut self, path: &Path) -> Result<()> {
+        let project_already_exists = self.projects.iter().any(|project| {
+            if let ValidProject::Existant(project) = project {
+                return project.get_project_file_path() == path;
+            }
+
+            false
+        });
+
+        if project_already_exists {
+            utils::log("This project already exists!", LogType::Info);
+
+            return Ok(());
+        }
+
         let project_file_contents = fs::read_to_string(path)
             .map_err(|err| Error::ImportProjects(err.to_string()))?;
 

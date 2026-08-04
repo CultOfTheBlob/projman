@@ -12,8 +12,6 @@ mod open_project_button;
 mod project_info;
 mod remove_project_button;
 mod remove_project_popup;
-mod update_project_button;
-mod update_project_popup;
 
 const SIDEBAR_WITDH: f32 = 640.0;
 
@@ -31,8 +29,6 @@ pub fn render(cx: &Context<RootView>, sidebar_open: bool) -> impl IntoElement {
     let open_project_button = open_project_button::render(cx);
 
     let edit_project_button = edit_project_button::render(cx);
-
-    let update_project_button = update_project_button::render(cx);
 
     let remove_project_button = remove_project_button::render(cx);
 
@@ -80,7 +76,6 @@ pub fn render(cx: &Context<RootView>, sidebar_open: bool) -> impl IntoElement {
                         .w_full()
                         .child(open_project_button)
                         .child(edit_project_button)
-                        .child(update_project_button)
                         .child(remove_project_button),
                 )
                 .child(div().h(px(40.0)))

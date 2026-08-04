@@ -1,5 +1,6 @@
 use crate::{
     config::Config,
+    project::Project,
     root_view::render::{self, top_bar::import_project_popup::ImportProjectPopup},
     utils::{input, steal_focus},
 };
@@ -16,9 +17,13 @@ impl Render for ImportProjectPopup {
 
         let project_path_input_value = self.project_path_input_state.read(cx).value();
 
-        let project_path_is_valid = project_path_input_value.ends_with(".projman.toml")
-            && project_path_input_value
-                .starts_with(&self.projects_directory.to_string_lossy().into_owned());
+        let is_project_file =
+            project_path_input_value.ends_with(Project::<()>::PROJECT_FILE_NAME);
+
+        let is_under_projects_directory = project_path_input_value
+            .starts_with(&self.projects_directory.to_string_lossy().into_owned());
+
+        let project_path_is_valid = is_project_file && is_under_projects_directory;
 
         let project_path_input = Input::new(&self.project_path_input_state);
 
