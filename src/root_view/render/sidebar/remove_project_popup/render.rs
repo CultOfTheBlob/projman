@@ -16,9 +16,9 @@ impl Render for RemoveProjectPopup {
         let theme = cx.global::<Config>().theme.theme.get_theme();
         let app_state = cx.global::<GlobalAppState>().0.clone();
 
-        let Some(project) = app_state.get_selected_project() else {
-            unreachable!()
-        };
+        let project = app_state.get_selected_project();
+
+        let project_exists = matches!(project, Some(ValidProject::Existant(_)));
 
         let remove_message = "Are you sure you want to remove this project?";
 
@@ -65,7 +65,7 @@ impl Render for RemoveProjectPopup {
             .gap_y_3()
             .text_color(theme.text)
             .child(remove_message)
-            .when(matches!(project, ValidProject::Existant(_)), |this: Div| {
+            .when(project_exists, |this: Div| {
                 this.child(remove_folder_checkbox)
             })
             .child(div().flex_1())

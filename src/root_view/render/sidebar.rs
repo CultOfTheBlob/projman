@@ -21,8 +21,6 @@ pub fn render(cx: &Context<RootView>, sidebar_open: bool) -> impl IntoElement {
     let theme = cx.global::<Config>().theme.theme.get_theme();
     let app_state = cx.global::<GlobalAppState>().0.clone();
 
-    let selected_project_index = app_state.selected_project_index;
-
     let divider_line = div()
         .w_full()
         .h(px(2.0))
@@ -30,18 +28,18 @@ pub fn render(cx: &Context<RootView>, sidebar_open: bool) -> impl IntoElement {
         .rounded_full()
         .mb_4();
 
-    let open_project_button = open_project_button::render(cx, selected_project_index);
+    let open_project_button = open_project_button::render(cx);
 
     let edit_project_button = edit_project_button::render(cx);
 
     let update_project_button = update_project_button::render(cx);
 
-    let remove_project_button = remove_project_button::render(cx, selected_project_index);
+    let remove_project_button = remove_project_button::render(cx);
 
-    let project = selected_project_index.map(|index| &app_state.projects[index]);
+    let project = app_state.get_selected_project();
 
     let project_info = project.map_or_else(div, |project| match project {
-        ValidProject::Existant(project) => project_info::render(cx, project),
+        ValidProject::Existant(project) => project_info::render(cx, &project),
         ValidProject::Nonexistant(_) => div(),
     });
 

@@ -12,7 +12,7 @@ impl Project<Unvalidated> {
             return Ok(false);
         }
 
-        let project_file_path = path.join(Self::PROJECT_FILE_NAME);
+        let project_file_path = self.get_project_file_path();
 
         if !project_file_path.is_file() {
             return Ok(false);

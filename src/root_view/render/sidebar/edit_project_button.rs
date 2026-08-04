@@ -1,4 +1,5 @@
 use crate::{
+    app_state::GlobalAppState,
     config::Config,
     root_view::{
         RootView,
@@ -6,15 +7,35 @@ use crate::{
     },
     utils,
 };
-use gpui::*;
+use gpui::{prelude::FluentBuilder as _, *};
 
 pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
-    let theme = cx.global::<Config>().theme.theme.get_theme();
     let root_view = cx.entity();
+    let theme = cx.global::<Config>().theme.theme.get_theme();
+    let app_state = cx.global::<GlobalAppState>().0.clone();
 
-    render::text_button("sidebar_edit_button", "Edit", Some(""), &theme, None).on_click(
-        move |_, _, cx: &mut App| {
-            utils::create_popup::<EditProjectPopup>(&root_view, cx);
-        },
+    let disabled =
+        app_state.get_selected_project().is_none() || app_state.restoring_project;
+
+    let listener = move |_: &ClickEvent, _: &mut Window, cx: &mut App| {
+        if disabled {
+            return;
+        }
+
+        utils::create_popup::<EditProjectPopup>(&root_view, cx);
+    };
+
+    render::text_button(
+        "sidebar_edit_button",
+        "Edit",
+        Some(""),
+        &theme,
+        Some(disabled),
     )
+    .when(disabled, |this: Stateful<Div>| {
+        this.bg(theme.background)
+            .border_color(theme.background)
+            .text_color(theme.text_disabled)
+    })
+    .on_click(listener)
 }

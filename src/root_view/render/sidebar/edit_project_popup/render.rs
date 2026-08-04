@@ -26,7 +26,7 @@ impl Render for EditProjectPopup {
         let confirm_button =
             render::text_button("confirm_button", "Confirm", None, &theme, None)
                 .bg(theme.special)
-                .on_click(Self::confirm_button_pressed);
+                .on_click(cx.listener(Self::confirm_button_pressed));
 
         steal_focus! {
             cx,

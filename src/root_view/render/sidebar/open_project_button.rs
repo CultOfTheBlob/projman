@@ -1,16 +1,13 @@
 use crate::{
     app_state::GlobalAppState,
     config::Config,
-    project::{Project, valid_project::ValidProject},
+    project::valid_project::ValidProject,
     root_view::{RootView, render},
     utils::{self, LogType},
 };
 use gpui::{prelude::FluentBuilder, *};
 
-pub fn render(
-    cx: &Context<RootView>,
-    selected_project_index: Option<usize>,
-) -> Stateful<Div> {
+pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
     let theme = cx.global::<Config>().theme.theme.get_theme();
     let app_state = cx.global::<GlobalAppState>().0.clone();
 
@@ -20,9 +17,8 @@ pub fn render(
             .border_color(theme.background)
             .text_color(theme.text_disabled);
 
-    let project = match selected_project_index {
-        Some(index) => app_state.projects[index].clone(),
-        None => return button,
+    let Some(project) = app_state.get_selected_project() else {
+        return button;
     };
 
     let disabled = matches!(project, ValidProject::Nonexistant(_));
@@ -40,7 +36,7 @@ pub fn render(
             return;
         };
 
-        if let Err(err) = Project::run(project, &app_state) {
+        if let Err(err) = app_state.run_project(project) {
             utils::log(&err.to_string(), LogType::Error);
         }
     };

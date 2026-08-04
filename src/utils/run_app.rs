@@ -5,6 +5,7 @@ use crate::{
 };
 use gpui::*;
 use gpui_component::{Root, Theme as ComponentTheme, ThemeConfig};
+use gpui_component_assets::Assets;
 use std::{rc::Rc, sync::Arc};
 
 /**
@@ -12,7 +13,7 @@ use std::{rc::Rc, sync::Arc};
 If the `App::open_window` method fails and GPUI cant create a window.
 */
 pub fn run_app(config: Config) {
-    Application::new().run(move |cx| {
+    Application::new().with_assets(Assets).run(move |cx| {
         gpui_component::init(cx);
 
         let theme = config.theme.theme.get_theme();

@@ -1,4 +1,5 @@
 use crate::{
+    app_state::GlobalAppState,
     config::Config,
     root_view::{
         RootView,
@@ -8,14 +9,13 @@ use crate::{
 };
 use gpui::{prelude::FluentBuilder as _, *};
 
-pub fn render(
-    cx: &Context<RootView>,
-    selected_project_index: Option<usize>,
-) -> Stateful<Div> {
-    let theme = cx.global::<Config>().theme.theme.get_theme();
+pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
     let root_view = cx.entity();
+    let theme = cx.global::<Config>().theme.theme.get_theme();
+    let app_state = cx.global::<GlobalAppState>().0.clone();
 
-    let disabled = selected_project_index.is_none();
+    let disabled =
+        app_state.get_selected_project().is_none() || app_state.restoring_project;
 
     let listener = move |_: &ClickEvent, _: &mut Window, cx: &mut App| {
         if disabled {

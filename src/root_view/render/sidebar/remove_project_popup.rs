@@ -33,7 +33,7 @@ impl RemoveProjectPopup {
             let app_state = Arc::make_mut(&mut app_state.0);
 
             let Some(project_index) = app_state.selected_project_index else {
-                unreachable!()
+                return;
             };
 
             if let Err(err) =

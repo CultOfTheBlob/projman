@@ -5,6 +5,7 @@ use std::{marker::PhantomData, path::PathBuf};
 mod existant;
 pub mod info;
 mod load_projects;
+mod nonexistant;
 mod unvalidated;
 pub mod valid_project;
 
@@ -48,5 +49,9 @@ impl<State> Project<State> {
 
             state: PhantomData,
         }
+    }
+
+    pub fn get_project_file_path(&self) -> PathBuf {
+        PathBuf::from(&self.path).join(Project::<()>::PROJECT_FILE_NAME)
     }
 }

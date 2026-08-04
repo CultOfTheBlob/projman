@@ -1,10 +1,12 @@
 use crate::{
-    app_state::AppState,
+    app_state::{AppState, GlobalAppState},
     config::Config,
     project::{Nonexistant, Project},
-    root_view::RootView,
+    root_view::{RootView, render},
+    utils::{self, LogType},
 };
-use gpui::*;
+use gpui::{prelude::FluentBuilder, *};
+use gpui_component::{Icon, IconName, spinner::Spinner};
 use std::sync::Arc;
 
 pub fn render(
@@ -15,6 +17,7 @@ pub fn render(
 ) -> Stateful<Div> {
     let root_view = cx.entity();
     let theme = cx.global::<Config>().theme.theme.get_theme();
+    let app_state = cx.global::<GlobalAppState>().0.clone();
 
     let bg_color = if is_selected {
         theme.surface_strong
@@ -50,14 +53,81 @@ pub fn render(
         .items_center()
         .size_16()
         .text_color(theme.error)
-        .text_size(px(96.0))
-        .child("");
+        .child(Icon::new(IconName::CircleX).size_16());
 
     let title = div().text_color(theme.error).child("Missing!");
 
     let project_name = div()
         .text_color(theme.text_muted)
         .child(project.name.clone());
+
+    let restore_button = {
+        let listener = {
+            let project = project.clone();
+
+            move |_: &ClickEvent, _: &mut Window, cx: &mut App| {
+                AppState::set_restoring_project(cx, true);
+
+                let project = project.clone();
+
+                let restore = |cx: AsyncApp| async move {
+                    let restored_project = cx
+                        .background_executor()
+                        .spawn(async move { Arc::unwrap_or_clone(project).restore() })
+                        .await;
+
+                    let _ = cx.update_global::<GlobalAppState, ()>(|app_state, _| {
+                        let app_state = Arc::make_mut(&mut app_state.0);
+
+                        match restored_project {
+                            Ok(restored) => {
+                                if let Err(err) = app_state.restore_project(restored) {
+                                    utils::log(&err.to_string(), LogType::Error);
+                                }
+                            }
+                            Err(err) => {
+                                utils::log(&err.to_string(), LogType::Error);
+                            }
+                        }
+
+                        app_state.restoring_project = false;
+                    });
+                };
+
+                cx.spawn(|cx: &mut AsyncApp| {
+                    let cx = cx.clone();
+
+                    restore(cx)
+                })
+                .detach();
+            }
+        };
+
+        let button_label = if app_state.restoring_project {
+            "Restoring..."
+        } else {
+            "Restore"
+        };
+
+        let spinner = Spinner::new()
+            .color(theme.accent_alt.into())
+            .icon(IconName::LoaderCircle);
+
+        render::text_button(
+            "restore_button",
+            button_label,
+            None,
+            &theme,
+            Some(app_state.restoring_project),
+        )
+        .border_color(theme.accent_alt)
+        .when(app_state.restoring_project, |this: Stateful<Div>| {
+            this.gap_x_2().child(spinner)
+        })
+        .when(!app_state.restoring_project, |this: Stateful<Div>| {
+            this.on_click(listener)
+        })
+    };
 
     div()
         .id(SharedString::from(format!("project_{}", project.name)))
@@ -84,4 +154,8 @@ pub fn render(
                 .child(title)
                 .child(div().text_color(theme.text_muted).child(project_name)),
         )
+        .child(div().flex_1())
+        .when(is_selected, |this: Stateful<Div>| {
+            this.child(restore_button)
+        })
 }

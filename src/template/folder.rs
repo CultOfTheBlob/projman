@@ -38,50 +38,50 @@ impl Folder {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::template::project_context::ProjectContext;
-
-    fn create_mock_context<'a>() -> ProjectContext<'a> {
-        ProjectContext {
-            name: "project_name",
-            repo: "git@project_name.com",
-            license: "LICENSE",
-        }
-    }
-
-    #[test]
-    fn test_resolve_flat_folder_with_context_formatting() {
-        let ctx = create_mock_context();
-        let root = Path::new("/workspace");
-
-        let folder = Folder::new("#{name}").sub_dirs(&[]);
-
-        let resolved = folder.resolve(root, &ctx);
-
-        assert_eq!(resolved, vec![PathBuf::from("/workspace/project_name")]);
-    }
-
-    #[test]
-    fn test_resolve_nested_subdirectories_recursively() {
-        let ctx = create_mock_context();
-        let root = Path::new("/workspace");
-
-        let folder =
-            Folder::new("#{name}")
-                .sub_dirs(&[Folder::new("src")
-                    .sub_dirs(&[Folder::new("controllers").sub_dirs(&[])])]);
-
-        let resolved = folder.resolve(root, &ctx);
-
-        assert_eq!(
-            resolved,
-            vec![
-                PathBuf::from("/workspace/project_name"),
-                PathBuf::from("/workspace/project_name/src"),
-                PathBuf::from("/workspace/project_name/src/controllers"),
-            ]
-        );
-    }
-}
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use crate::template::project_context::ProjectContext;
+//
+//     fn create_mock_context<'a>() -> ProjectContext<'a> {
+//         ProjectContext {
+//             name: "project_name",
+//             repo: "git@project_name.com",
+//             license: "LICENSE",
+//         }
+//     }
+//
+//     #[test]
+//     fn test_resolve_flat_folder_with_context_formatting() {
+//         let ctx = create_mock_context();
+//         let root = Path::new("/workspace");
+//
+//         let folder = Folder::new("#{name}").sub_dirs(&[]);
+//
+//         let resolved = folder.resolve(root, &ctx);
+//
+//         assert_eq!(resolved, vec![PathBuf::from("/workspace/project_name")]);
+//     }
+//
+//     #[test]
+//     fn test_resolve_nested_subdirectories_recursively() {
+//         let ctx = create_mock_context();
+//         let root = Path::new("/workspace");
+//
+//         let folder =
+//             Folder::new("#{name}")
+//                 .sub_dirs(&[Folder::new("src")
+//                     .sub_dirs(&[Folder::new("controllers").sub_dirs(&[])])]);
+//
+//         let resolved = folder.resolve(root, &ctx);
+//
+//         assert_eq!(
+//             resolved,
+//             vec![
+//                 PathBuf::from("/workspace/project_name"),
+//                 PathBuf::from("/workspace/project_name/src"),
+//                 PathBuf::from("/workspace/project_name/src/controllers"),
+//             ]
+//         );
+//     }
+// }

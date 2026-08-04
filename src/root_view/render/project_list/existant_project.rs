@@ -44,7 +44,7 @@ pub fn render(
 
         move |event: &ClickEvent, _: &mut Window, cx: &mut App| {
             if event.click_count() == 2 {
-                if let Err(err) = Project::run(&project, &app_state) {
+                if let Err(err) = app_state.run_project(&project) {
                     utils::log(&err.to_string(), LogType::Error);
                     return;
                 }

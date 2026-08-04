@@ -32,4 +32,12 @@ pub enum Error {
     UpdateProjects(String),
     #[error("Failed to remove project from projects: {0}")]
     RemoveProject(String),
+    #[error("Failed to restore project: {0}")]
+    RestoreProject(String),
+    #[error("Failed to clone project repo: {0}")]
+    CloneProjectRepo(String),
+    #[error("Failed to edit projects: {0}")]
+    EditProjects(String),
+    #[error("Failed to import projects: {0}")]
+    ImportProjects(String),
 }

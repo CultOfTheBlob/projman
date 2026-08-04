@@ -16,7 +16,7 @@ impl Render for ImportProjectPopup {
 
         let project_path_input_value = self.project_path_input_state.read(cx).value();
 
-        let project_path_is_valid = project_path_input_value.ends_with("config.projman")
+        let project_path_is_valid = project_path_input_value.ends_with(".projman.toml")
             && project_path_input_value
                 .starts_with(&self.projects_directory.to_string_lossy().into_owned());
 
@@ -57,7 +57,9 @@ impl Render for ImportProjectPopup {
                     .text_color(theme.text_disabled)
                     .border_color(theme.error)
             },
-            |this: Stateful<Div>| this.on_click(Self::confirm_button_pressed),
+            |this: Stateful<Div>| {
+                this.on_click(cx.listener(Self::confirm_button_pressed))
+            },
         );
 
         steal_focus! {
