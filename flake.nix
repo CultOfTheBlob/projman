@@ -38,10 +38,13 @@
           vulkan-loader
           pango
           atk
-          gtk3
           openssl
         ];
-        nativeBuildInputs = with pkgs; [pkg-config makeWrapper];
+
+        nativeBuildInputs = with pkgs; [
+          pkg-config
+          makeWrapper
+        ];
 
         postInstall = ''
           wrapProgram $out/bin/projman \
@@ -69,7 +72,6 @@
           fontconfig
           pango
           atk
-          gtk3
           openssl
         ];
 

@@ -1,8 +1,12 @@
 use crate::{
-    config_dir::ConfigDir, prelude::*, template::template_config::TemplateConfig,
+    config_dir::ConfigDir,
+    prelude::*,
+    template::{
+        command::Command, file::File, folder::Folder, template_config::TemplateConfig,
+    },
 };
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     ffi::OsStr,
     fs,
     path::{Path, PathBuf},
@@ -16,14 +20,14 @@ pub mod file;
 pub mod folder;
 pub mod template_config;
 
-pub fn load_templates() -> Result<HashMap<String, Template>> {
+pub fn load_templates() -> Result<BTreeMap<String, Template>> {
     let templates_dir_path = ConfigDir::Templates.get_file(None)?;
 
     let dir_entries = templates_dir_path
         .read_dir()
         .map_err(|err| Error::ReadTemplatesDir(err.to_string()))?;
 
-    let mut templates = HashMap::new();
+    let mut templates = BTreeMap::new();
 
     for entry in dir_entries {
         let entry_path = entry
@@ -40,6 +44,41 @@ pub fn load_templates() -> Result<HashMap<String, Template>> {
             templates.insert(template_name.to_string(), template);
         }
     }
+
+    // TODO: Remove
+    templates.insert(
+        String::from("TestTemplate"),
+        Template {
+            name: String::from("TestTemplate"),
+            config: TemplateConfig::new()
+                .dir_structure(&[Folder::new("folder1")
+                    .sub_dirs(&[
+                        Folder::new("folder2").sub_dirs(&[Folder::new("folder3")])
+                    ])])
+                .files(&[
+                    File::new("file.txt").contents("HIIII"),
+                    File::new("folder1/file.txt").contents(""),
+                    File::new("folder1/folder2/file2.txt").contents("BYEEEE"),
+                ])
+                .build(&[
+                    Command::new("echo").args(&["it wooorks1"]),
+                    Command::new("sleep").args(&["2"]),
+                    Command::new("echo").args(&["it wooorks2"]),
+                    Command::new("sleep").args(&["2"]),
+                    Command::new("echo").args(&["it wooorks3"]),
+                    Command::new("sleep").args(&["2"]),
+                    Command::new("echo").args(&["it wooorks4"]),
+                    Command::new("sleep").args(&["2"]),
+                    Command::new("echo").args(&["it wooorks5"]),
+                    Command::new("sleep").args(&["2"]),
+                    Command::new("echo").args(&["it wooorks6"]),
+                    Command::new("sleep").args(&["2"]),
+                    Command::new("echo").args(&["it wooorks7"]),
+                    Command::new("sleep").args(&["2"]),
+                ]),
+            icon_path: PathBuf::from("/home/blob/.config/projman/icons/base.svg"),
+        },
+    );
 
     Ok(templates)
 }

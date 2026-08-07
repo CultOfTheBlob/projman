@@ -27,7 +27,7 @@ pub fn render(cx: &Context<RootView>, search_bar_state: &InputState) -> Div {
             .filter_map(|(index, project)| match project {
                 ValidProject::Existant(project) => {
                     let template = project
-                        .template(&app_state)
+                        .get_template(&app_state)
                         .map_err(|err| {
                             utils::log(&err.to_string(), LogType::Error);
                         })

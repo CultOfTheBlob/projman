@@ -40,4 +40,18 @@ pub enum Error {
     EditProjects(String),
     #[error("Failed to import projects: {0}")]
     ImportProjects(String),
+    #[error("Failed to create project directory: {0}")]
+    CreateProjectDir(String),
+    #[error("Failed to create project file: {0}")]
+    CreateProjectFile(String),
+    #[error("Failed to create project directory structure: {0}")]
+    CreateProjectDirStructure(String),
+    #[error("Failed to create project files: {0}")]
+    CreateProjectFiles(String),
+    #[error("Failed to execute project commands: {0}")]
+    ExecuteProjectCommands(String),
+    #[error("Failed to execute commit project init: {0}")]
+    CommitProjectInit(String),
+    #[error("Failed to load project license: {0}")]
+    LoadProjectLicense(String),
 }

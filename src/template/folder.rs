@@ -24,8 +24,8 @@ impl Folder {
     }
 
     pub fn resolve(&self, root: &Path, ctx: &ProjectContext) -> Vec<PathBuf> {
-        let resolved_name = ctx.format(&self.name);
-        let current_dir = root.join(resolved_name);
+        let formatted_name = ctx.format(&self.name);
+        let current_dir = root.join(formatted_name);
 
         let mut dirs = vec![current_dir];
         for sub in &self.sub_dirs {

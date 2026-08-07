@@ -65,27 +65,26 @@ impl Render for RootView {
                 cx.stop_propagation();
             });
 
-        steal_focus! {
-            cx,
-            div()
-                .size_full()
-                .bg(theme.background_weak)
-                .flex()
-                .flex_col()
-                .child(top_bar)
-                .child(
-                    div()
-                        .size_full()
-                        .flex()
-                        .flex_row()
-                        .child(project_list)
-                        .child(sidebar),
-                )
-                .child(modal_overlay)
-                .when(app_state.modal_active, |this: Div| {
-                    this.child(modal_blocker)
-                })
-        }
+        let div = div()
+            .size_full()
+            .bg(theme.background_weak)
+            .flex()
+            .flex_col()
+            .child(top_bar)
+            .child(
+                div()
+                    .size_full()
+                    .flex()
+                    .flex_row()
+                    .child(project_list)
+                    .child(sidebar),
+            )
+            .child(modal_overlay)
+            .when(app_state.modal_active, |this: Div| {
+                this.child(modal_blocker)
+            });
+
+        steal_focus!(cx, div)
     }
 }
 

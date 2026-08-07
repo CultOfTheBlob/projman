@@ -6,7 +6,7 @@ use crate::{
 };
 use gpui::{App, BorrowAppContext as _, Global};
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     fs::{self},
     path::{Path, PathBuf},
     sync::Arc,
@@ -17,11 +17,12 @@ mod update_projects_file;
 
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub templates: HashMap<String, Template>,
+    pub templates: BTreeMap<String, Template>,
     pub projects: Vec<ValidProject>,
 
     pub selected_project_index: Option<usize>,
     pub restoring_project: bool,
+    pub creating_project: bool,
     pub modal_active: bool,
 }
 
@@ -30,7 +31,7 @@ impl AppState {
         let templates = template::load_templates().unwrap_or_else(|err| {
             utils::log(&err.to_string(), LogType::Error);
 
-            HashMap::new()
+            BTreeMap::new()
         });
 
         let projects = project::load_projects().unwrap_or_else(|err| {
@@ -45,6 +46,7 @@ impl AppState {
 
             selected_project_index: None,
             restoring_project: false,
+            creating_project: false,
             modal_active: false,
         }
     }
@@ -70,6 +72,13 @@ impl AppState {
         cx.update_global::<GlobalAppState, ()>(|app_state: &mut GlobalAppState, _| {
             let app_state = Arc::make_mut(&mut app_state.0);
             app_state.restoring_project = restoring_project;
+        });
+    }
+
+    pub fn set_creating_project(cx: &mut App, creating_project: bool) {
+        cx.update_global::<GlobalAppState, ()>(|app_state: &mut GlobalAppState, _| {
+            let app_state = Arc::make_mut(&mut app_state.0);
+            app_state.creating_project = creating_project;
         });
     }
 
@@ -106,8 +115,9 @@ impl AppState {
         Ok(())
     }
 
-    pub fn add_project(&mut self, project: ValidProject) -> Result<()> {
-        self.projects.push(project);
+    pub fn add_project(&mut self, project: Project<Existant>) -> Result<()> {
+        self.projects
+            .push(ValidProject::Existant(Arc::new(project)));
 
         update_projects_file(&self.projects)?;
 
@@ -176,10 +186,10 @@ impl AppState {
 
             let project_file_path = project.get_project_file_path();
 
-            let toml = toml::to_string_pretty(&project)
+            let project_file_contents = toml::to_string_pretty(&project)
                 .map_err(|err| Error::EditProjects(err.to_string()))?;
 
-            fs::write(&project_file_path, toml)
+            fs::write(&project_file_path, project_file_contents)
                 .map_err(|err| Error::EditProjects(err.to_string()))?;
         }
 

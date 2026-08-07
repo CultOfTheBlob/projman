@@ -6,7 +6,7 @@ use git2::{Config, Cred, FetchOptions, RemoteCallbacks, build::RepoBuilder};
 use std::{fs, marker::PhantomData, path::PathBuf};
 
 impl Project<Nonexistant> {
-    fn clone_repo(&self) -> Result<()> {
+    pub fn clone_repo(&self) -> Result<()> {
         let mut callbacks = RemoteCallbacks::new();
 
         callbacks.credentials(|url, username_from_url, allowed| {
@@ -37,7 +37,7 @@ impl Project<Nonexistant> {
 
             let project_file_path = project_path.join(Project::<()>::PROJECT_FILE_NAME);
 
-            let project_file_contents = toml::to_string(&self)
+            let project_file_contents = toml::to_string_pretty(&self)
                 .map_err(|err| Error::RestoreProject(err.to_string()))?;
 
             fs::write(project_file_path, project_file_contents)

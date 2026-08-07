@@ -18,25 +18,25 @@ impl Project<Unvalidated> {
             return Ok(false);
         }
 
-        let project_file_toml = toml::from_str::<Self>(
+        let project = toml::from_str::<Self>(
             &fs::read_to_string(project_file_path)
                 .map_err(|err| Error::ReadProjectFile(err.to_string()))?,
         )
         .map_err(|err| Error::ReadProjectFile(err.to_string()))?;
 
-        if project_file_toml.name != self.name {
+        if project.name != self.name {
             return Ok(false);
         }
 
-        if project_file_toml.template_name != self.template_name {
+        if project.template_name != self.template_name {
             return Ok(false);
         }
 
-        if project_file_toml.repo != self.repo {
+        if project.repo != self.repo {
             return Ok(false);
         }
 
-        if project_file_toml.license != self.license {
+        if project.license != self.license {
             return Ok(false);
         }
 

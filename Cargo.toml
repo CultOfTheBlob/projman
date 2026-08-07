@@ -16,7 +16,7 @@ gpui-component-assets = "0.5.1"
 gpui-animation = "0.2.63"
 notify-rust = "4.18.0"
 colored = "3.1.1"
-rfd = { version = "0.17.2", default-features = false, features = ["gtk3"] }
+rfd = "0.15.4"
 directories = "6.0.0"
 git2 = "0.20.4"
 serde = { version = "1.0.228", features = ["derive"] }
@@ -33,6 +33,8 @@ temp-env = "0.3.6"
 resvg = "0.47.0"
 base64 = "0.23.0"
 image = "0.25.10"
+smol = "2.0.2"
+futures = "0.3.33"
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }

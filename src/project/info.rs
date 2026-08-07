@@ -36,7 +36,7 @@ impl Project<Existant> {
             .head()
             .map_err(|err| Error::GetProjectInfo(err.to_string()))?;
 
-        let template = self.template(app_state)?;
+        let template = self.get_template(app_state)?;
         let (line_count, language_percentage) = get_language_stats(self, template);
 
         let (project_size, file_count) = get_size_and_file_count(&index);

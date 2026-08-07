@@ -15,15 +15,19 @@ impl Render for ImportProjectPopup {
     ) -> impl IntoElement {
         let theme = cx.global::<Config>().theme.theme.get_theme();
 
+        let projects_directory = &cx.global::<Config>().general.projects_dir;
+
         let project_path_input_value = self.project_path_input_state.read(cx).value();
 
-        let is_project_file =
-            project_path_input_value.ends_with(Project::<()>::PROJECT_FILE_NAME);
+        let project_path_is_valid = {
+            let is_project_file =
+                project_path_input_value.ends_with(Project::<()>::PROJECT_FILE_NAME);
 
-        let is_under_projects_directory = project_path_input_value
-            .starts_with(&self.projects_directory.to_string_lossy().into_owned());
+            let is_under_projects_directory =
+                project_path_input_value.starts_with(projects_directory);
 
-        let project_path_is_valid = is_project_file && is_under_projects_directory;
+            is_project_file && is_under_projects_directory
+        };
 
         let project_path_input = Input::new(&self.project_path_input_state);
 
@@ -67,42 +71,41 @@ impl Render for ImportProjectPopup {
             },
         );
 
-        steal_focus! {
-            cx,
-            div()
-                .flex()
-                .flex_col()
-                .size_full()
-                .bg(theme.surface)
-                .p_4()
-                .text_color(theme.text)
-                .child(
-                    div()
-                        .flex()
-                        .flex_col()
-                        .gap_y_4()
-                        .child(
-                            div()
-                                .flex()
-                                .flex_row()
-                                .items_center()
-                                .gap_x_0p5()
-                                .child(div().flex_1().child(input!(project_path_input)))
-                                .child(select_directory_button)
-                        )
-                        .when(!project_path_is_valid, |this: Div| {
-                            this.child(project_path_invalid_text)
-                        },)
-                )
-                .child(div().flex_1())
-                .child(
-                    div()
-                        .flex()
-                        .flex_row()
-                        .child(cancle_button)
-                        .child(div().flex_1())
-                        .child(confirm_button),
-                )
-        }
+        let div = div()
+            .flex()
+            .flex_col()
+            .size_full()
+            .bg(theme.surface)
+            .p_4()
+            .text_color(theme.text)
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .gap_y_4()
+                    .child(
+                        div()
+                            .flex()
+                            .flex_row()
+                            .items_center()
+                            .gap_x_0p5()
+                            .child(div().flex_1().child(input!(project_path_input)))
+                            .child(select_directory_button),
+                    )
+                    .when(!project_path_is_valid, |this: Div| {
+                        this.child(project_path_invalid_text)
+                    }),
+            )
+            .child(div().flex_1())
+            .child(
+                div()
+                    .flex()
+                    .flex_row()
+                    .child(cancle_button)
+                    .child(div().flex_1())
+                    .child(confirm_button),
+            );
+
+        steal_focus!(cx, div)
     }
 }

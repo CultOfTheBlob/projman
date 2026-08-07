@@ -1,10 +1,12 @@
+use std::path::Path;
+
 use crate::template::project_context::ProjectContext;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct File {
     pub path: String,
-    pub content: String,
+    pub contents: String,
     pub tracked: bool,
 }
 
@@ -12,14 +14,14 @@ impl File {
     pub fn new(path: &str) -> Self {
         Self {
             path: path.to_string(),
-            content: String::new(),
+            contents: String::new(),
             tracked: false,
         }
     }
 
-    pub fn content(self, content: &str) -> Self {
+    pub fn contents(self, content: &str) -> Self {
         Self {
-            content: content.to_string(),
+            contents: content.to_string(),
             ..self
         }
     }
@@ -28,10 +30,13 @@ impl File {
         Self { tracked, ..self }
     }
 
-    pub fn resolve(&self, ctx: &ProjectContext) -> Self {
+    pub fn resolve(&self, root: &Path, ctx: &ProjectContext) -> Self {
         Self {
-            path: ctx.format(&self.path),
-            content: ctx.format(&self.content),
+            path: root
+                .join(ctx.format(&self.path))
+                .to_string_lossy()
+                .to_string(),
+            contents: ctx.format(&self.contents),
             tracked: self.tracked,
         }
     }

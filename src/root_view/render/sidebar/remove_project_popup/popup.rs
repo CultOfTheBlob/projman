@@ -16,8 +16,10 @@ impl Popup for RemoveProjectPopup {
     const HEIGHT_FRACTION: f32 = 0.125;
 
     fn create(_root_view: &Entity<RootView>, _window: &mut Window, cx: &mut App) -> Self {
+        let config = cx.global::<Config>();
+
         Self {
-            remove_folder_checked: cx.global::<Config>().general.delete_project_folder,
+            remove_folder_checked: config.general.delete_project_folder,
         }
     }
 }

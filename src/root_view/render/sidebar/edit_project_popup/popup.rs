@@ -31,13 +31,13 @@ impl Popup for EditProjectPopup {
 
         let project_name_input_state = cx.new(|cx: &mut Context<InputState>| {
             InputState::new(window, cx)
-                .placeholder("Name")
+                .placeholder("...")
                 .default_value(name.to_string())
         });
 
         let project_repo_input_state = cx.new(|cx: &mut Context<InputState>| {
             InputState::new(window, cx)
-                .placeholder("Repo")
+                .placeholder("...")
                 .default_value(repo.to_string())
         });
 

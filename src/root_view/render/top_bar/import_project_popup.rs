@@ -19,8 +19,6 @@ pub struct ImportProjectPopup {
     focus_handle: FocusHandle,
 
     project_path_input_state: Entity<InputState>,
-
-    projects_directory: PathBuf,
 }
 
 impl ImportProjectPopup {
@@ -37,7 +35,6 @@ impl ImportProjectPopup {
 
         if let Some(path) = FileDialog::new()
             .set_title("Pick ProjMan File")
-            .set_directory(&this.projects_directory)
             .add_filter("ProjMan", &[extension])
             .pick_file()
         {

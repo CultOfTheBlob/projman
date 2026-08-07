@@ -1,10 +1,5 @@
-use std::path::PathBuf;
-
-use crate::{
-    config::Config,
-    root_view::{
-        RootView, popup::Popup, render::top_bar::import_project_popup::ImportProjectPopup,
-    },
+use crate::root_view::{
+    RootView, popup::Popup, render::top_bar::import_project_popup::ImportProjectPopup,
 };
 use gpui::*;
 use gpui_component::input::InputState;
@@ -23,14 +18,10 @@ impl Popup for ImportProjectPopup {
             InputState::new(window, cx).placeholder("...")
         });
 
-        let projects_dir = &cx.global::<Config>().general.projects_dir;
-
         Self {
             focus_handle: cx.focus_handle(),
 
             project_path_input_state,
-
-            projects_directory: PathBuf::from(projects_dir),
         }
     }
 }
