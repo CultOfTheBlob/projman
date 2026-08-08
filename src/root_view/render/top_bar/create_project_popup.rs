@@ -80,23 +80,22 @@ impl CreateProjectPopup {
             .cloned()
             .unwrap_or_default();
 
-        let (log_tx, log_rx) = channel::unbounded::<String>();
+        let view_entity = cx.entity();
 
-        let view_handle = cx.entity();
+        let (sender, reciever) = channel::unbounded::<String>();
 
         let log_to_console = move |mut cx: AsyncApp| async move {
-            while let Ok(line) = log_rx.recv().await {
-                let _ = cx.update_entity(
-                    &view_handle,
-                    |view: &mut Self, cx: &mut Context<Self>| {
-                        view.console_logs.push(line);
+            while let Ok(line) = reciever.recv().await {
+                let update = |view: &mut Self, cx: &mut Context<Self>| {
+                    view.console_logs.push(line);
 
-                        let last_index = view.console_logs.len().saturating_sub(1);
-                        view.scroll_handle.scroll_to_item(last_index);
+                    let last_index = view.console_logs.len().saturating_sub(1);
+                    view.scroll_handle.scroll_to_item(last_index);
 
-                        cx.notify();
-                    },
-                );
+                    cx.notify();
+                };
+
+                let _ = cx.update_entity(&view_entity, update);
             }
         };
 
@@ -116,7 +115,7 @@ impl CreateProjectPopup {
                 .background_executor()
                 .spawn(async move {
                     let on_log = move |line: String| {
-                        let _ = log_tx.send_blocking(line);
+                        let _ = sender.send_blocking(line);
                     };
 
                     match Project::<Nonexistant>::new()

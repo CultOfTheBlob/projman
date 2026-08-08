@@ -3,6 +3,7 @@ mod get_config_path;
 mod input;
 mod load_svg;
 mod log;
+mod parse_ansi;
 mod run_app;
 mod steal_focus;
 
@@ -19,3 +20,5 @@ pub(crate) use input::input;
 pub(crate) use steal_focus::steal_focus;
 
 pub use load_svg::load_svg;
+
+pub use parse_ansi::parse_ansi;
