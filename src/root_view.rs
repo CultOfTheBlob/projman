@@ -1,7 +1,7 @@
 use gpui::*;
 use gpui_component::input::InputState;
 
-pub mod popup;
+mod popup;
 mod render;
 
 #[derive(Debug)]

@@ -129,3 +129,15 @@ pub fn text_button(
 
     button
 }
+
+macro_rules! input {
+    ($input:expr) => {
+        div()
+            .child($input)
+            .on_mouse_down(MouseButton::Left, move |_, _, cx: &mut App| {
+                cx.stop_propagation();
+            })
+    };
+}
+
+pub(crate) use input;

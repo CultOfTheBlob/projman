@@ -2,10 +2,9 @@ use crate::{
     app_state::GlobalAppState,
     config::Config,
     root_view::{
-        RootView,
+        RootView, popup,
         render::{self, sidebar::edit_project_popup::EditProjectPopup},
     },
-    utils,
 };
 use gpui::{prelude::FluentBuilder as _, *};
 
@@ -22,7 +21,7 @@ pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
             return;
         }
 
-        utils::create_popup::<EditProjectPopup>(&root_view, cx);
+        popup::create::<EditProjectPopup>(&root_view, cx);
     };
 
     render::text_button(

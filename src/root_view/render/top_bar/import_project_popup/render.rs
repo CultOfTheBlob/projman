@@ -1,8 +1,8 @@
 use crate::{
     config::Config,
     project::Project,
-    root_view::render::{self, top_bar::import_project_popup::ImportProjectPopup},
-    utils::{input, steal_focus},
+    root_view::render::{self, input, top_bar::import_project_popup::ImportProjectPopup},
+    utils::steal_focus,
 };
 use gpui::{prelude::FluentBuilder, *};
 use gpui_component::input::Input;

@@ -1,4 +1,5 @@
-use crate::{prelude::*, utils};
+use crate::prelude::*;
+use directories::ProjectDirs;
 use std::{
     fmt::{Display, Formatter, Result as FmtResult},
     fs,
@@ -15,7 +16,10 @@ pub enum ConfigDir {
 
 impl ConfigDir {
     pub fn get_file(self, create_if_missing: Option<&str>) -> Result<PathBuf> {
-        let config_path = utils::get_config_path()?;
+        let config_path = ProjectDirs::from("", "", "projman")
+            .map_or(Err(Error::GetConfigDir), |project_dirs: ProjectDirs| {
+                Ok(project_dirs.config_dir().to_path_buf())
+            })?;
 
         fs::create_dir_all(&config_path).map_err(|err| {
             Error::CreateDir(config_path.to_string_lossy().into_owned(), err.to_string())

@@ -1,7 +1,7 @@
 use crate::{
     config::Config,
-    root_view::render::{self, sidebar::edit_project_popup::EditProjectPopup},
-    utils::{input, steal_focus},
+    root_view::render::{self, input, sidebar::edit_project_popup::EditProjectPopup},
+    utils::steal_focus,
 };
 use gpui::*;
 use gpui_component::input::Input;

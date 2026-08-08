@@ -1,10 +1,9 @@
 use crate::{
     config::Config,
     root_view::{
-        RootView,
+        RootView, popup,
         render::{self, top_bar::create_project_popup::CreateProjectPopup},
     },
-    utils,
 };
 use gpui::*;
 
@@ -14,7 +13,7 @@ pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
 
     render::text_button("top_bar_create_button", "Create", None, &theme, None).on_click(
         move |_, _, cx: &mut App| {
-            utils::create_popup::<CreateProjectPopup>(&root_view, cx);
+            popup::create::<CreateProjectPopup>(&root_view, cx);
         },
     )
 }

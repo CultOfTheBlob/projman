@@ -3,8 +3,8 @@ use std::{fs, path::PathBuf};
 use crate::{
     app_state::GlobalAppState,
     config::Config,
-    root_view::render::{self, top_bar::create_project_popup::CreateProjectPopup},
-    utils::{self, input, steal_focus},
+    root_view::render::{self, input, top_bar::create_project_popup::CreateProjectPopup},
+    utils::{self, steal_focus},
 };
 use gpui::{Axis::Vertical, prelude::FluentBuilder as _, *};
 use gpui_component::{input::Input, scroll::ScrollableElement, select::Select};
