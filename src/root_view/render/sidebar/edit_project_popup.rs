@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     app_state::{AppState, GlobalAppState},
-    utils::{self, LogType},
+    log::Log,
 };
 use gpui::*;
 use gpui_component::input::InputState;
@@ -45,7 +45,7 @@ impl EditProjectPopup {
                 let repo = view.project_repo_input_state.read(cx).value().to_string();
 
                 if let Err(err) = app_state.edit_project(project_index, name, repo) {
-                    utils::log(&err.to_string(), LogType::Error);
+                    Log::Error.log(&err.to_string());
                 }
             },
         );

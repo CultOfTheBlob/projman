@@ -1,9 +1,9 @@
 use crate::{
     app_state::{AppState, GlobalAppState},
     config::Config,
+    log::Log,
     project::{Nonexistant, Project},
     root_view::{RootView, render},
-    utils::{self, LogType},
 };
 use gpui::{prelude::FluentBuilder, *};
 use gpui_component::{Icon, IconName, spinner::Spinner};
@@ -82,11 +82,11 @@ pub fn render(
                         match restored_project {
                             Ok(restored) => {
                                 if let Err(err) = app_state.restore_project(restored) {
-                                    utils::log(&err.to_string(), LogType::Error);
+                                    Log::Error.log(&err.to_string());
                                 }
                             }
                             Err(err) => {
-                                utils::log(&err.to_string(), LogType::Error);
+                                Log::Error.log(&err.to_string());
                             }
                         }
 

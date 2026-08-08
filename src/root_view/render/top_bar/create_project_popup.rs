@@ -1,7 +1,7 @@
 use crate::{
     app_state::{AppState, GlobalAppState},
+    log::Log,
     project::{Nonexistant, Project},
-    utils::{self, LogType},
 };
 use gpui::*;
 use gpui_component::{
@@ -129,10 +129,10 @@ impl CreateProjectPopup {
                         Ok(project) => Some(project),
                         Err(err) => {
                             if let Err(err) = fs::remove_dir_all(path) {
-                                utils::log(&err.to_string(), LogType::Error);
+                                Log::Error.log(&err.to_string());
                             }
 
-                            utils::log(&err.to_string(), LogType::Error);
+                            Log::Error.log(&err.to_string());
 
                             None
                         }
@@ -146,7 +146,7 @@ impl CreateProjectPopup {
                 if let Some(project) = project
                     && let Err(err) = app_state.add_project(project)
                 {
-                    utils::log(&err.to_string(), LogType::Error);
+                    Log::Error.log(&err.to_string());
                 }
 
                 app_state.creating_project = false;

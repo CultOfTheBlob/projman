@@ -1,5 +1,5 @@
 use ansitok::{AnsiColor, ElementKind, Output, VisualAttribute};
-use gpui::*;
+use gpui::{Div, ParentElement as _, Rgba, Styled as _};
 
 use crate::theme::Theme;
 
@@ -12,7 +12,7 @@ pub struct Log {
 
 impl From<Log> for Div {
     fn from(value: Log) -> Self {
-        let mut div = div().child(value.text);
+        let mut div = gpui::div().child(value.text);
 
         if let Some(color) = value.color {
             div = div.text_color(color);

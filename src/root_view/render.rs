@@ -1,9 +1,7 @@
 use crate::{
     app_state::GlobalAppState, config::Config, root_view::RootView, theme::Theme,
-    utils::steal_focus,
 };
-use gpui::prelude::FluentBuilder;
-use gpui::*;
+use gpui::{prelude::FluentBuilder, *};
 use gpui_animation::{
     animation::TransitionExt as _, transition::general::EaseInOutCubic,
 };
@@ -12,6 +10,31 @@ use std::time::Duration;
 mod project_list;
 mod sidebar;
 mod top_bar;
+
+macro_rules! input {
+    ($input:expr) => {
+        div()
+            .child($input)
+            .on_mouse_down(MouseButton::Left, move |_, _, cx: &mut App| {
+                cx.stop_propagation();
+            })
+    };
+}
+
+pub(crate) use input;
+
+macro_rules! steal_focus {
+    ($context:expr, $div:expr) => {
+        $div.on_mouse_down(
+            MouseButton::Left,
+            $context.listener(move |this: &mut Self, _, window: &mut Window, _| {
+                this.focus_handle.focus(window);
+            }),
+        )
+    };
+}
+
+pub(crate) use steal_focus;
 
 impl Render for RootView {
     fn render(
@@ -129,15 +152,3 @@ pub fn text_button(
 
     button
 }
-
-macro_rules! input {
-    ($input:expr) => {
-        div()
-            .child($input)
-            .on_mouse_down(MouseButton::Left, move |_, _, cx: &mut App| {
-                cx.stop_propagation();
-            })
-    };
-}
-
-pub(crate) use input;

@@ -52,10 +52,6 @@ impl<State: Default> Project<State> {
         Self { repo, ..self }
     }
 
-    pub fn license(self, license: String) -> Self {
-        Self { license, ..self }
-    }
-
     pub fn template_name(self, template_name: String) -> Self {
         Self {
             template_name,

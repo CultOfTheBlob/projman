@@ -1,6 +1,6 @@
 use crate::{
+    log::Log,
     project::{Existant, Nonexistant, Project, Unvalidated},
-    utils::{self, LogType},
 };
 use serde::ser::{Serialize, Serializer};
 use std::{marker::PhantomData, sync::Arc};
@@ -14,7 +14,7 @@ pub enum ValidProject {
 impl Project<Unvalidated> {
     pub(super) fn validate(self) -> ValidProject {
         let project_exists = self.exists().unwrap_or_else(|err| {
-            utils::log(&err.to_string(), LogType::Error);
+            Log::Error.log(&err.to_string());
 
             false
         });

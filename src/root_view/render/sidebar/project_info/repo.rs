@@ -1,7 +1,4 @@
-use crate::{
-    theme::Theme,
-    utils::{self, LogType},
-};
+use crate::{log::Log, theme::Theme};
 use gpui::*;
 
 pub fn render(repo: String, theme: &Theme) -> Div {
@@ -19,7 +16,7 @@ pub fn render(repo: String, theme: &Theme) -> Div {
         };
 
         if let Err(err) = open::that(repo) {
-            utils::log(&err.to_string(), LogType::Error);
+            Log::Error.log(&err.to_string());
         }
     };
 

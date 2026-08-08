@@ -1,9 +1,9 @@
 use crate::{
     app_state::{AppState, GlobalAppState},
     config::Config,
+    log::Log,
     project::{Existant, Project},
     root_view::RootView,
-    utils::{self, LogType},
 };
 use gpui::*;
 use image::{Frame, RgbaImage};
@@ -51,7 +51,8 @@ pub fn render(
         move |event: &ClickEvent, _: &mut Window, cx: &mut App| {
             if event.click_count() == 2 {
                 if let Err(err) = app_state.run_project(&project) {
-                    utils::log(&err.to_string(), LogType::Error);
+                    Log::Error.log(&err.to_string());
+
                     return;
                 }
 

@@ -1,9 +1,9 @@
 use crate::{
     app_state::{AppState, GlobalAppState},
     config::Config,
+    log::Log,
     project::valid_project::ValidProject,
     root_view::RootView,
-    utils::{self, LogType},
 };
 use gpui::*;
 use gpui_component::input::InputState;
@@ -29,7 +29,7 @@ pub fn render(cx: &Context<RootView>, search_bar_state: &InputState) -> Div {
                     let template = project
                         .get_template(&app_state)
                         .map_err(|err| {
-                            utils::log(&err.to_string(), LogType::Error);
+                            Log::Error.log(&err.to_string());
                         })
                         .ok()?;
 

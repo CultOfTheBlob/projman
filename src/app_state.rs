@@ -1,8 +1,8 @@
 use crate::{
+    log::Log,
     prelude::*,
     project::{self, Existant, Project, valid_project::ValidProject},
     template::{self, Template},
-    utils::{self, LogType},
 };
 use gpui::{App, BorrowAppContext as _, Global};
 use std::{
@@ -29,13 +29,13 @@ pub struct AppState {
 impl AppState {
     pub fn new() -> Self {
         let templates = template::load_templates().unwrap_or_else(|err| {
-            utils::log(&err.to_string(), LogType::Error);
+            Log::Error.log(&err.to_string());
 
             BTreeMap::new()
         });
 
         let projects = project::load_projects().unwrap_or_else(|err| {
-            utils::log(&err.to_string(), LogType::Error);
+            Log::Error.log(&err.to_string());
 
             vec![]
         });
@@ -210,7 +210,7 @@ impl AppState {
         });
 
         if project_already_exists {
-            utils::log("This project already exists!", LogType::Info);
+            Log::Info.log("This project already exists!");
 
             return Ok(());
         }

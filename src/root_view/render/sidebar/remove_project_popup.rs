@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     app_state::{AppState, GlobalAppState},
-    utils::{self, LogType},
+    log::Log,
 };
 use gpui::*;
 
@@ -39,7 +39,7 @@ impl RemoveProjectPopup {
             if let Err(err) =
                 app_state.remove_project(project_index, view.remove_folder_checked)
             {
-                utils::log(&err.to_string(), LogType::Error);
+                Log::Error.log(&err.to_string());
             }
         });
 

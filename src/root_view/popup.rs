@@ -1,9 +1,4 @@
-use crate::{
-    app_state::AppState,
-    prelude::*,
-    root_view::RootView,
-    utils::{self, LogType},
-};
+use crate::{app_state::AppState, log::Log, prelude::*, root_view::RootView};
 use gpui::*;
 use gpui_component::Root;
 
@@ -61,10 +56,8 @@ pub fn create<T: Render + Popup>(root_view: &Entity<RootView>, cx: &mut App) {
 
         cx.new(|cx| Root::new(view, window, cx))
     }) {
-        utils::log(
-            &Error::OpenPopup(T::TITLE.to_string(), err.to_string()).to_string(),
-            LogType::Error,
-        );
+        Log::Error
+            .log(&Error::OpenPopup(T::TITLE.to_string(), err.to_string()).to_string());
     }
 
     AppState::set_modal_active(cx, true);

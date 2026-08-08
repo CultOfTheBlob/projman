@@ -1,9 +1,9 @@
 use crate::{
     app_state::GlobalAppState,
     config::Config,
+    log::Log,
     project::valid_project::ValidProject,
     root_view::{RootView, render},
-    utils::{self, LogType},
 };
 use gpui::{prelude::FluentBuilder, *};
 
@@ -37,7 +37,7 @@ pub fn render(cx: &Context<RootView>) -> Stateful<Div> {
         };
 
         if let Err(err) = app_state.run_project(project) {
-            utils::log(&err.to_string(), LogType::Error);
+            Log::Error.log(&err.to_string());
         }
     };
 

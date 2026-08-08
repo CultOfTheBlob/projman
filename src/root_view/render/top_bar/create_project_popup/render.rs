@@ -3,10 +3,12 @@ use std::{fs, path::PathBuf};
 use crate::{
     app_state::GlobalAppState,
     config::Config,
-    root_view::render::{self, input, top_bar::create_project_popup::CreateProjectPopup},
-    utils::{self, steal_focus},
+    root_view::render::{
+        self, input, steal_focus, top_bar::create_project_popup::CreateProjectPopup,
+    },
+    utils,
 };
-use gpui::{Axis::Vertical, prelude::FluentBuilder as _, *};
+use gpui::{prelude::FluentBuilder as _, *};
 use gpui_component::{input::Input, scroll::ScrollableElement, select::Select};
 
 impl Render for CreateProjectPopup {
@@ -87,17 +89,17 @@ impl Render for CreateProjectPopup {
             .border_1()
             .rounded_sm()
             .border_color(theme.border)
-            .scrollbar(&self.scroll_handle, Vertical)
+            .scrollbar(&self.scroll_handle, Axis::Vertical)
             .track_scroll(&self.scroll_handle)
             .overflow_y_scroll()
             .children(self.console_logs.iter().map(|line| {
-                let spans = utils::parse_ansi(line, &theme);
+                let logs = utils::parse_ansi(line, &theme);
 
                 div()
                     .flex()
                     .flex_row()
                     .whitespace_nowrap()
-                    .children(spans.into_iter().map(Div::from))
+                    .children(logs.into_iter().map(Div::from))
             }));
 
         let cancle_button = render::text_button(

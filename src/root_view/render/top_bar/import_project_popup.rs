@@ -1,16 +1,15 @@
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
-
 use crate::{
     app_state::{AppState, GlobalAppState},
+    log::Log,
     project::Project,
-    utils::{self, LogType},
 };
 use gpui::*;
 use gpui_component::input::InputState;
 use rfd::FileDialog;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 mod popup;
 mod render;
@@ -62,7 +61,7 @@ impl ImportProjectPopup {
                 let path = view.project_path_input_state.read(cx).value().to_string();
 
                 if let Err(err) = app_state.import_project(&PathBuf::from(path)) {
-                    utils::log(&err.to_string(), LogType::Error);
+                    Log::Error.log(&err.to_string());
                 }
             },
         );

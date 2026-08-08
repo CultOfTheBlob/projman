@@ -1,11 +1,12 @@
 //!---
 
-use crate::{config::Config, utils::LogType};
+use crate::{config::Config, log::Log};
 
 mod app_state;
 mod config;
 mod config_dir;
 mod error;
+mod log;
 mod prelude;
 mod project;
 mod root_view;
@@ -15,7 +16,7 @@ mod utils;
 
 fn main() {
     let config = Config::load().unwrap_or_else(|err| {
-        utils::log(&err.to_string(), LogType::Error);
+        Log::Error.log(&err.to_string());
 
         Config::default()
     });
